@@ -127,23 +127,11 @@ class IncomeTaxCalculator(object):
     # 输出 CSV 文件函数
     def export(self, default='csv'):
         result = self.calc_for_all_userdata()
-        print(result)
         with open(Args().outfile, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(result)
+            writer.writerows(result)
 
 
 if __name__ == '__main__':
-#    args = Args() 
-#    print(args.configfile)
-#    print(args.userdatafile)
-#    print(args.outfile)
-#    configdict = Config()
-#    print(configdict.config)
-#    userlist = UserData()
-#    print(userlist.userdata)
     income = IncomeTaxCalculator()
     income.export()
-    
-
-
