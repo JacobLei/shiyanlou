@@ -3,7 +3,7 @@
 
 import sys
 import csv
-from  multiprocessing import Process, Queue, Lock, Pool
+from  multiprocessing import Process, Queue, Pool
 
 # 处理命令行参数类
 class Args(object):
