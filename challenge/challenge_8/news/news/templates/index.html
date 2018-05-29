@@ -1,0 +1,6 @@
+{% for article in articles %}
+    <a href=http://127.0.0.1:3000/files/{{article.id}} >  {{article.title}} </a>
+    {% for tag in article.tags %}
+        <p> {{tag}} </p>
+    {% endfor %}
+{% endfor %}
