@@ -4,10 +4,9 @@ from openpyxl.utils import get_column_letter
 import datetime
 
 def combine():
-    wb = load_workbook(filename='courses.xlsx')
-    wb.active
-    students = wb.get_sheet_by_name('students')
-    time = wb.get_sheet_by_name('time')
+    wb = load_workbook('courses.xlsx')
+    students = wb['students']
+    time = wb['time']
     combine = wb.create_sheet('combine')
     list_students = []
     list_time = []
@@ -40,9 +39,9 @@ def combine():
     wb.save('courses.xlsx')
 
 def split():
-    wb = load_workbook(filename='courses.xlsx')
+    wb = load_workbook('courses.xlsx')
     wb.active
-    combine = wb.get_sheet_by_name('combine')
+    combine = wb['combine']
     list_combine = []
     for row in combine.rows:
         row_combine = []
@@ -57,19 +56,20 @@ def split():
         else:
             year_content[year] = [combine,]
     for key, value in year_content.items():
-        print(key, value)
         new_wb = Workbook()
-        year_sheet = new_wb.create_sheet(str(year))
+        year_sheet = new_wb.active
+        year_sheet.title = str(key)
+        value.insert(0, list_combine[0])
         i = 1
         for line in value:
             for col in range(1, len(line) + 1):
                 col_num = get_column_letter(col)
                 year_sheet.cell('%s%s'%(col_num, i)).value = line[col-1]
             i = i + 1
-        new_wb.save(str(year)+'.xlsx')
+        new_wb.save(str(key)+'.xlsx')
 
 
 
 if __name__ == '__main__':
-#    combine()
+    combine()
     split()
