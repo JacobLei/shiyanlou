@@ -82,7 +82,7 @@ class Config(object):
         return self._get_config('JiShuH')
 
     @property
-    def social_insurance_baseline_low(self):
+    def social_insurance_total_rate(self):
         return sum([
             self._get_config('YangLao'),
             self._get_config('YiLiao'),
@@ -113,6 +113,9 @@ class Userdata(object):
                 userdata.append((empolyee_id, income))
         return userdata	
 
+    def __iter__(self):
+        return iter(self.userdata)
+
 class IncomeTaxCalulator(object):
 
     def __init__(self, userdata):
@@ -120,14 +123,42 @@ class IncomeTaxCalulator(object):
 
     @staticmethod
     def calc_social_insurance_money(income):
+        low = config.social_insurance_baseline_low
+        high = config.social_insurance_baseline_high
+        total_rate = config.social_insurance_total_rate
+        if income < low:
+            return low * total_rate
+        if income > high:
+            return high * total_rate
+        return income * total_rate
 
+    @classmethod
+    def calc_income_and_remain(cls, income):
+        social_insurance_money = cls.calc_social_insurance_money(income)
+        real_income = income - social_insurance_money
+        taxable_part = real_income - INCOME_TAX_START_POINT
+        if taxable_part <= 0:
+            return '0.00', '{:.2f}'.format(real_income)
+        for item in INCOME_TAX_QUICK_LOOKUP_TABLE:
+            if taxable_part > item.start_point:
+                tax = taxable_part * item.tax_rate - item.quick_subtractor
+                return '{:.2f}'.format(tax), '{:.2f}'.format(real_income - tax)
 
+    def calc_for_all_userdata(self):
+        result = []
+        for employee_id, income in self.userdata:
+            data = [employee_id, income]
+            social_insurance_money = '{:.2f}'.format(self.calc_social_insurance_money(income))
+            tax, remain = self.calc_income_and_remain(income)
+            data = data + [social_insurance_money, tax, remain]
+            result.append(data)
+        return result    
 
-
-
+    def export(self, file_type='csv'):
+        result = self.calc_for_all_userdata()
+        with open(args.export_path, 'w', newline='') as f:
+            csv.writer(f).writerows(result)
 
 if __name__ == '__main__':
-    print(config.config)
-    print(userdata.userdata)
-
-
+    calculator = IncomeTaxCalulator(Userdata())
+    calculator.export()
