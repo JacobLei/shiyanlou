@@ -13,6 +13,6 @@ class ShiyanlouGithubSpider(scrapy.Spider):
     def parse(self, response):
         for respository in response.css('li.col-12'):
             yield {
-                    'name' : respository.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/text()').re_first('[A-Za-z0-9]+'), 
+                    'name' : respository.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/text()').re_first('[^\w]*(.*)'), 
                     'update_time' : respository.xpath('.//relative-time/@datetime').extract_first()
                     }
