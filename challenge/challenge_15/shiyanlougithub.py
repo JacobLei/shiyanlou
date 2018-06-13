@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 
 import scrapy
+from datetime import datetime
 
 class ShiyanlouGithubSpider(scrapy.Spider):
     name = 'shiyanlou-github'
@@ -11,8 +12,8 @@ class ShiyanlouGithubSpider(scrapy.Spider):
         return (url_tmp1.format(i) for i in range(1, 5))
 
     def parse(self, response):
-        for respository in response.css('li.col-12'):
+        for repository in response.xpath('//*[@id="user-repositories-list"]/ul/li'):
             yield {
-                    'name' : respository.xpath('.//div[contains(@class,"d-inline-block")]/h3/a/text()').re_first('[^\w]*(.*)'), 
-                    'update_time' : respository.xpath('.//relative-time/@datetime').extract_first()
+                    'name' : repository.xpath('.//a/text()').extract_first().strip(),
+                    'update_time' : datetime.strptime(repository.xpath('.//relative-time/@datetime').extract_first(), '%Y-%m-%dT%H:%M:%SZ')
                     }
